@@ -43,10 +43,8 @@ public class AutoBase extends LinearOpMode {
     int blub = 0;
 
 
-
     private double spedAdjust = .15;
     private int boundBE = 5;
-
 
 
     public static final String VUFORIA_KEY =
@@ -61,7 +59,8 @@ public class AutoBase extends LinearOpMode {
      * Detection engine.*/
     public TFObjectDetector tfod;
 
-    public AutoBase() {}  //constructor
+    public AutoBase() {
+    }  //constructor
 
     @Override
     public void runOpMode() {
@@ -101,14 +100,14 @@ public class AutoBase extends LinearOpMode {
         initVuforia();
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit           = BNO055IMU.AngleUnit.RADIANS;
+        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
         parameters.calibrationDataFile = "BNO055IMUCalibration.json";
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
         robot.init(hardwareMap);
 
-        angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
         startHeading = angles.firstAngle;
         if (tfod != null) {
             tfod.activate();
@@ -121,7 +120,7 @@ public class AutoBase extends LinearOpMode {
             // (typically 1.78 or 16/9).
 
             // Uncomment the following line if you want to adjust the magnification and/or the aspect ratio of the input images.*SARAHSARAHSSARAHSARAHSARAHMAKI***********************************************************************************
-            tfod.setZoom(2.5, 16/9);
+            tfod.setZoom(2.5, 16 / 9);
         }
 
 
@@ -165,9 +164,7 @@ public class AutoBase extends LinearOpMode {
         }
 
 
-        if(tfod !=null)
-
-        {
+        if (tfod != null) {
             tfod.shutdown();
         }
     }
@@ -260,8 +257,7 @@ public class AutoBase extends LinearOpMode {
         }
     }
 
-    public void encoderDrivePlus(double speed, double leftInches, double rightInches, double timeoutS)
-    {
+    public void encoderDrivePlus(double speed, double leftInches, double rightInches, double timeoutS) {
 
         int newLeftTarget = 0;
         int newRightTarget = 0;
@@ -310,20 +306,15 @@ public class AutoBase extends LinearOpMode {
 
 
             while (opModeIsActive() && (runtime.seconds() < timeoutS)) {
-                if (angles.firstAngle > .02)
-                {
-                    robot.fpd.setPower(Math.abs(speed)+.3);
-                    while (angles.firstAngle > .015)
-                    {
+                if (angles.firstAngle > .02) {
+                    robot.fpd.setPower(Math.abs(speed) + .3);
+                    while (angles.firstAngle > .02) {
 
                     }
                     robot.fpd.setPower(Math.abs(speed));
-                }
-                else if (angles.firstAngle < -.015)
-                {
-                    robot.fsd.setPower(Math.abs(speed)+.3);
-                    while (angles.firstAngle < -.02)
-                    {
+                } else if (angles.firstAngle < -.02) {
+                    robot.fsd.setPower(Math.abs(speed) + .3);
+                    while (angles.firstAngle < -.02) {
 
                     }
                     robot.fsd.setPower(Math.abs(speed));
@@ -451,7 +442,7 @@ public class AutoBase extends LinearOpMode {
         sleep(250);   // optional pause after each move
     }
 
-    public void sideways(double speed, double frontInches, double backInches, double timeoutS){ //sideways encoder    //negative is left maybbbeeee hopefully
+    public void sideways(double speed, double frontInches, double backInches, double timeoutS) { //sideways encoder    //negative is left maybbbeeee hopefully
         int newFrontTarget = 0;
         int newBackTarget = 0;
 
@@ -459,7 +450,6 @@ public class AutoBase extends LinearOpMode {
 
         // Ensure that the opmode is still active
         if (opModeIsActive()) {
-
 
 
             // Determine new target position, and pass to motor controller
@@ -537,7 +527,7 @@ public class AutoBase extends LinearOpMode {
 
     }
 
-    public void sidewaysBE(double speed, double frontInches, double backInches, double timeoutS){ //sideways encoder    //negative is left maybbbeeee hopefully
+    public void sidewaysBE(double speed, double frontInches, double backInches, double timeoutS) { //sideways encoder    //negative is left maybbbeeee hopefully
         int newFrontTarget = 0;
         int newBackTarget = 0;
 
@@ -626,13 +616,13 @@ public class AutoBase extends LinearOpMode {
     }
 
 
-    public void correctForBack(double speed){
+    public void correctForBack(double speed) {
 
         double sped = (speed - spedAdjust);  //adjusted speed
 
-        if(robot.bpd.getCurrentPosition()>boundBE) { // too much port???
+        if (robot.bpd.getCurrentPosition() > boundBE) { // too much port???
 
-            while (robot.bpd.getCurrentPosition()>boundBE) {  //correct while its bad
+            while (robot.bpd.getCurrentPosition() > boundBE) {  //correct while its bad
 
                 //decrease port side motor speed for adjustments, at spEd
                 robot.bpd.setPower(sped);
@@ -644,9 +634,9 @@ public class AutoBase extends LinearOpMode {
             robot.bpd.setPower(speed);
             robot.fpd.setPower(speed);
 
-        }else if(robot.bpd.getCurrentPosition()< -boundBE) {   //too much star???
+        } else if (robot.bpd.getCurrentPosition() < -boundBE) {   //too much star???
 
-            while (robot.bpd.getCurrentPosition()< -boundBE) {
+            while (robot.bpd.getCurrentPosition() < -boundBE) {
 
                 //decrease star side motor speed for adjustments, at spEd
                 robot.bsd.setPower(sped);
@@ -661,13 +651,13 @@ public class AutoBase extends LinearOpMode {
         }
     }
 
-    public void correctSideways(double speed){
+    public void correctSideways(double speed) {
 
         double sped = (speed - spedAdjust);
 
-        if(robot.bsd.getCurrentPosition()>boundBE) { // too much forward side
+        if (robot.bsd.getCurrentPosition() > boundBE) { // too much forward side
 
-            while (robot.bsd.getCurrentPosition()>boundBE) {
+            while (robot.bsd.getCurrentPosition() > boundBE) {
                 //decrease front side motor speed for adjustments, at spEd
                 robot.fpd.setPower(sped);
                 robot.fsd.setPower(sped);
@@ -678,9 +668,9 @@ public class AutoBase extends LinearOpMode {
             robot.fsd.setPower(speed);
             robot.fpd.setPower(speed);
 
-        }else if(robot.bsd.getCurrentPosition()< -boundBE) {   //too much back side
+        } else if (robot.bsd.getCurrentPosition() < -boundBE) {   //too much back side
 
-            while (robot.bsd.getCurrentPosition()< -boundBE) {
+            while (robot.bsd.getCurrentPosition() < -boundBE) {
                 //decrease back side motor speed for adjustments, at spEd
                 robot.bsd.setPower(sped);
                 robot.bpd.setPower(sped);
@@ -694,7 +684,7 @@ public class AutoBase extends LinearOpMode {
         }
     }
 
-    public void setMotorDirSide(){
+    public void setMotorDirSide() {
         robot.fsd.setDirection(DcMotorSimple.Direction.REVERSE);
         robot.bsd.setDirection(DcMotorSimple.Direction.FORWARD);
         robot.fpd.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -702,7 +692,7 @@ public class AutoBase extends LinearOpMode {
 
     }
 
-    public void setMotorDirDrive(){
+    public void setMotorDirDrive() {
         robot.fsd.setDirection(DcMotorSimple.Direction.FORWARD);
         robot.bsd.setDirection(DcMotorSimple.Direction.FORWARD);
         robot.fpd.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -753,10 +743,16 @@ public class AutoBase extends LinearOpMode {
                 telemetry.update();
             }
         }
-        if(tfod !=null){tfod.shutdown();}
-        if (rings.equals("Single")) {return 1;}
-        else if (rings.equals("Quad")) {return 4;}
-        else {return 0;}
+        if (tfod != null) {
+            tfod.shutdown();
+        }
+        if (rings.equals("Single")) {
+            return 1;
+        } else if (rings.equals("Quad")) {
+            return 4;
+        } else {
+            return 0;
+        }
     }
 
 }

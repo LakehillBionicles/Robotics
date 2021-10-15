@@ -17,7 +17,6 @@ public class autocorrect_during_auto extends AutoBase {
     BNO055IMU imu;
     Orientation angles;
     double startHeading;
-    final double pi = 3.14159265359;
     @Override
 
     public void runOpMode() {
