@@ -75,10 +75,10 @@ public class Field_Centric_test extends LinearOpMode{
             double currentHeading = angles.firstAngle;
 
 
-            robot.fsd.setPower((Math.sin(-startHeading+currentHeading+angle+Math.PI/4))*magnitude);
-            robot.bpd.setPower((Math.sin(-startHeading+currentHeading+angle+Math.PI/4))*magnitude);
-            robot.fpd.setPower((Math.sin(-startHeading+currentHeading+angle-Math.PI/4))*magnitude);
-            robot.bsd.setPower((Math.sin(-startHeading+currentHeading+angle-Math.PI/4))*magnitude);
+            robot.fsd.setPower((Math.sin(-startHeading+currentHeading+angle-Math.PI/4))*magnitude);
+            robot.bpd.setPower((Math.sin(-startHeading+currentHeading+angle-Math.PI/4))*magnitude);
+            robot.fpd.setPower((Math.sin(-startHeading+currentHeading+angle+Math.PI/4))*magnitude);
+            robot.bsd.setPower((Math.sin(-startHeading+currentHeading+angle+Math.PI/4))*magnitude);
 
         }
         else{

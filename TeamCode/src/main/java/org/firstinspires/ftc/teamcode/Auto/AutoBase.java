@@ -16,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.LewaHardware;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 
 import java.util.List;
 
@@ -25,8 +26,17 @@ public class AutoBase extends LinearOpMode {
     BNO055IMU imu;
     Orientation angles;
     double startHeading;
-    final double pi = 3.14159265359;
     //LEDClass led = new LEDClass();
+
+    private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
+    private static final String[] LABELS = {
+            "Ball",
+            "Cube",
+            "Duck",
+            "Marker"
+    };
+    public final String VUFORIA_KEY =
+            "AVK0fyL/////AAABmQssSk9mVk96kBdzR7SOTK+JU/ZuMv8QpQVI57/d6DD/7rre5EwfXruGh0zwQ89E17WeE8jAlYaJl1w/00wkfEZvZQ1uyP2oTDhP6HrP/Z5arStkHU17WDYwjrQpncwUqkOB57SHsilJHJ2f9/pR13+5mAIJKO1vSB9EeIkbjJep/oBUO+pWN763R9VIFXTmbGbmL9KPqTstz/kVTd0K6/hQGRReFT5EWGqlcH+8E5X34F6v+AcvNYO5DIbNJat7/iZuaDdlYAokrQcl1ayNMyljJRK4sL/iRAtBoUEFiY4aZw2RN9D7SS/tQZCCJxrseXaJ1pu3IxGd6ld/BeKWJt88N6KMrZlmjjhX7MW5TKyY";
 
 
     public ElapsedTime runtime = new ElapsedTime();
@@ -46,9 +56,6 @@ public class AutoBase extends LinearOpMode {
     private double spedAdjust = .15;
     private int boundBE = 5;
 
-
-    public static final String VUFORIA_KEY =
-            "Ae3RG1L/////AAABmVYRV0p8GU09m+QhproaeElLfsYiWMINNfBok2ejh+YHfQkb72DM5G+LFLzcN0Bk8CZGcNo0s+fPdjCkgMfOOc6v6cNWtSrwmiEArmUJbgsyxqgkfLNszYiQzWLGjYcC/ZkGYIZum/AENGK6cYC0AVXr15L1Irr9u2Ab2krwwiv59xRtfXLuy9fsrxvbwWLBxJl7XZ4fnp22L9v9DkWAqcTzwSgevalxPgOOiH6Ric1aWhSUUQGsOaD9VX72OU6UJT82/O83xZISIWvLYUqzrasgqMVdJUbkCtIF9KQcmS+JlLZ2xz7ix2NMMIdP45R5Cu1xML3e/ebZHlU26EuuBhTGZOmhJHwmCVTwcXXikKnB";
 
     /*** {@link #vuforia} is the variable we will use to store our instance of the Vuforia
      * localization engine.*/
@@ -109,20 +116,7 @@ public class AutoBase extends LinearOpMode {
 
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
         startHeading = angles.firstAngle;
-        if (tfod != null) {
-            tfod.activate();
-
-            // The TensorFlow software will scale the input images from the camera to a lower resolution.
-            // This can result in lower detection accuracy at longer distances (> 55cm or 22").
-            // If your target is at distance greater than 50 cm (20") you can adjust the magnification value
-            // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
-            // should be set to the value of the images used to create the TensorFlow Object Detection model
-            // (typically 1.78 or 16/9).
-
-            // Uncomment the following line if you want to adjust the magnification and/or the aspect ratio of the input images.*SARAHSARAHSSARAHSARAHSARAHMAKI***********************************************************************************
-            tfod.setZoom(2.5, 16 / 9);
-        }
-
+        initTfod();
 
         /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start op mode");
@@ -130,45 +124,6 @@ public class AutoBase extends LinearOpMode {
 
 
     }
-
-    public void visionStuffDetect() {
-        pineapple = "";
-
-        //while (opModeIsActive()) {    //change modifier so it can kick???????
-        if (tfod != null && pineapple.equals("")) {
-            // getUpdatedRecognitions() will return null if no new information is available since
-            // the last time that call was made.
-            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-            if (updatedRecognitions != null) {
-
-                telemetry.addData("# Object Detected", updatedRecognitions.size());      //size!!!!!!!!!!!!!!!! is the determinant for wht box path to take????VALUESSS???????????????
-                // step through the list of recognitions and display boundary info.
-                int i = 0;
-                for (Recognition recognition : updatedRecognitions) {
-                    telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-                    telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                            recognition.getLeft(), recognition.getTop());
-                    telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                            recognition.getRight(), recognition.getBottom());
-                    pineapple = recognition.getLabel();
-                    sleep(500);  //just added
-
-                }
-
-                // blub = updatedRecognitions.size();
-
-                telemetry.update();
-
-
-            }
-        }
-
-
-        if (tfod != null) {
-            tfod.shutdown();
-        }
-    }
-
 
     public void encoderDrive(double speed, double leftInches, double rightInches, double timeoutS) {  //forward back and turn with encoder, always do 3 less
 
@@ -700,10 +655,10 @@ public class AutoBase extends LinearOpMode {
 
     }
 
-    public void initVuforia() {
-        /*
-         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
-         */
+    /** public void initVuforia() {
+
+          Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
+
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
@@ -717,7 +672,33 @@ public class AutoBase extends LinearOpMode {
 
         // Loading trackables is not necessary for the TensorFlow Object Detection engine.
     }
+    */
 
+    public void initVuforia() {
+        /*
+         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
+         */
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraDirection = CameraDirection.BACK;
+
+        //  Instantiate the Vuforia engine
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+        // Loading trackables is not necessary for the TensorFlow Object Detection engine.
+    }
+
+    public void initTfod() {
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minResultConfidence = 0.8f;
+        tfodParameters.isModelTensorFlow2 = true;
+        tfodParameters.inputSize = 320;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
+    }
 
     public int AltVision() {
         String rings = "";
@@ -754,5 +735,29 @@ public class AutoBase extends LinearOpMode {
             return 0;
         }
     }
+
+    public String detectDuck() {
+        return"";
+    }
+
+    public void liftFreightBlue(String a) {
+
+    }
+
+    public void liftFreightRed(String a) {}
+
+    public void spinCarousel() {}
+
+    public void parkFromStorageBlue() {}
+
+    public void parkFromStorageRed() {}
+
+    public void parkFromWarehouseBlue() {}
+
+    public void parkFromWarehouseRed() {}
+
+
+
+
 
 }
