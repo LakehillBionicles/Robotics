@@ -1,0 +1,22 @@
+package org.firstinspires.ftc.teamcode.Auto.Other;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
+import org.firstinspires.ftc.teamcode.Auto.AutoBase;
+
+@Autonomous
+@Disabled
+
+
+public class justParkWarehouseRed extends AutoBase {
+        public void runOpMode () {
+
+            startUp();
+            waitForStart();
+            encoderDrive(1,12.5,12.5,3);
+            turn90Right();
+            encoderDrive(.7,48,48,4);
+
+            stop();
+        }
+}
